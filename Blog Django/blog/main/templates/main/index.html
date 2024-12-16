@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Review</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #8f4646;
+        }
+        .header-isla {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card-blog {
+            transition: transform 0.3s;
+        }
+        .card-blog:hover {
+            transform: scale(1.05);
+        }
+        .pagination-isla {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgb(255, 255, 255);
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <header class="header-top bg-white header-isla mb-4 py-3">
+            <div class="container">
+                <h1 class="text-center mb-4">Review de Aplicaciones</h1>
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                            <img src="{% static 'assets/review.png' %}" alt="Logo" width="50">
+                        </a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item"><a class="nav-link" href="blogadd">Añadir Reseña</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <div class="container">
+
+                {% if blogs %}
+                    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
+                        {% for blog in blogs|slice:"0:9" %}
+                            <div class="col" id="blog-{{ blog.id }}">
+                                <div class="card card-blog shadow-sm h-100">
+                                    {% if blog.imagen %}
+                                        <img src="{{ blog.imagen.url }}" class="card-img-top" alt="Imagen del blog" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'assets/default-placeholder.png' %}" class="card-img-top" alt="Placeholder image" style="height: 200px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title text-primary">{{ blog.nombre }}</h5>
+                                        <p class="card-text text-muted">{{ blog.contenido }}</p>
+                                        <button class="btn btn-danger btn-sm" onclick="eliminarBlog('{{ blog.id }}')">Eliminar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center" role="alert">
+                        No hay blogs disponibles en este momento.
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    {% if blogs|length > 9 %}
+    <div class="pagination-isla">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                </li>
+                <li class="page-item active">
+                    <a class="page-link" href="#">1</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">2</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">3</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Recuperar los IDs de blogs eliminados desde localStorage
+            const blogsEliminados = JSON.parse(localStorage.getItem('blogsEliminados')) || [];
+            blogsEliminados.forEach(blogId => {
+                const blogElement = document.getElementById(`blog-${blogId}`);
+                if (blogElement) {
+                    blogElement.remove();
+                }
+            });
+        });
+
+        function eliminarBlog(blogId) {
+            const blogElement = document.getElementById(`blog-${blogId}`);
+            if (blogElement) {
+                blogElement.remove();
+
+                // Guardar el ID del blog eliminado en localStorage
+                let blogsEliminados = JSON.parse(localStorage.getItem('blogsEliminados')) || [];
+                if (!blogsEliminados.includes(blogId)) {
+                    blogsEliminados.push(blogId);
+                    localStorage.setItem('blogsEliminados', JSON.stringify(blogsEliminados));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
